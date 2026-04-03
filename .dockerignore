@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Dependencies (se reinstalan en el build)
+node_modules
+**/node_modules
+
+# Build outputs
+**/.medusa
+**/dist
+**/.next
+**/out
+**/.turbo
+
+# Env files
+.env
+**/.env
+**/.env.*
+
+# Dev/test
+integration-tests
+coverage
+**/*.test.ts
+**/*.spec.ts
+
+# Docs
+apps/docs
+
+# Scripts de CI
+.github
+
+# Claude
+.claude
+
+# Misc
+**/.DS_Store
+*.pem
+*.log

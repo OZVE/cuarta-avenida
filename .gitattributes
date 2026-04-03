@@ -1,0 +1,6 @@
+# Forzar LF para scripts de shell (corren en Linux)
+scripts/*.sh text eol=lf
+*.sh text eol=lf
+
+# Auto para el resto
+* text=auto
