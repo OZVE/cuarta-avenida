@@ -1,12 +1,11 @@
-FROM node:20-alpine AS base
+FROM oven/bun:1.3.8-alpine AS base
 
 WORKDIR /app
 
 # ── Dependencias ─────────────────────────────────────────────────────────────
 FROM base AS deps
 
-# Copiar manifests del monorepo
-COPY package.json turbo.json ./
+COPY package.json bun.lock turbo.json ./
 COPY apps/api/package.json                      ./apps/api/
 COPY packages/types/package.json                ./packages/types/
 COPY packages/core-plugin/package.json          ./packages/core-plugin/
@@ -24,32 +23,30 @@ RUN mkdir -p integration-tests && \
     echo '{"name":"@mercurjs/integration-tests","version":"0.0.1","private":true}' \
     > integration-tests/package.json
 
-# Instalar con npm (menor consumo de memoria que bun en entornos restringidos)
-# --legacy-peer-deps evita conflictos de peers en monorepos
-RUN npm install --legacy-peer-deps
+# Instalar con concurrencia limitada para reducir pico de memoria
+RUN bun install --concurrent-scripts 1
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 FROM deps AS builder
 
-# Copiar el codigo fuente completo
 COPY . .
 
 # 1. types
-RUN cd packages/types && npm run build
+RUN cd packages/types && bun run build
 
 # 2. core-plugin
-RUN cd packages/core-plugin && npm run build
+RUN cd packages/core-plugin && bun run build
 
 # 3. API
-RUN cd apps/api && npm run build
+RUN cd apps/api && bun run build
 
 # ── Imagen final ──────────────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
+FROM oven/bun:1.3.8-alpine AS runner
 
 WORKDIR /app
 
-# Copiar solo lo necesario para produccion
 COPY --from=builder /app/package.json           ./
+COPY --from=builder /app/bun.lock               ./
 COPY --from=builder /app/node_modules           ./node_modules
 COPY --from=builder /app/apps/api               ./apps/api
 COPY --from=builder /app/packages/types         ./packages/types
