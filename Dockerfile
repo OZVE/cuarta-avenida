@@ -1,15 +1,12 @@
 FROM node:20-alpine AS base
 
-# Install bun
-RUN npm install -g bun@1.3.8
-
 WORKDIR /app
 
 # ── Dependencias ─────────────────────────────────────────────────────────────
 FROM base AS deps
 
-# Copiar manifests del monorepo (para aprovechar cache de capas)
-COPY package.json bun.lock turbo.json ./
+# Copiar manifests del monorepo
+COPY package.json turbo.json ./
 COPY apps/api/package.json                      ./apps/api/
 COPY packages/types/package.json                ./packages/types/
 COPY packages/core-plugin/package.json          ./packages/core-plugin/
@@ -22,12 +19,14 @@ COPY packages/dashboard-shared/package.json     ./packages/dashboard-shared/
 COPY packages/providers/payout-stripe-connect/package.json ./packages/providers/payout-stripe-connect/
 COPY packages/registry/package.json             ./packages/registry/
 
-# integration-tests no va a produccion, creamos un stub para satisfacer el workspace
+# Stub para integration-tests (no va a produccion)
 RUN mkdir -p integration-tests && \
     echo '{"name":"@mercurjs/integration-tests","version":"0.0.1","private":true}' \
     > integration-tests/package.json
 
-RUN bun install
+# Instalar con npm (menor consumo de memoria que bun en entornos restringidos)
+# --legacy-peer-deps evita conflictos de peers en monorepos
+RUN npm install --legacy-peer-deps
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 FROM deps AS builder
@@ -36,24 +35,21 @@ FROM deps AS builder
 COPY . .
 
 # 1. types
-RUN cd packages/types && bun run build
+RUN cd packages/types && npm run build
 
-# 2. core-plugin (necesita internet para codegen, requiere acceso a npm)
-RUN cd packages/core-plugin && bun run build
+# 2. core-plugin
+RUN cd packages/core-plugin && npm run build
 
-# 3. API (medusa build)
-RUN cd apps/api && bun run build
+# 3. API
+RUN cd apps/api && npm run build
 
 # ── Imagen final ──────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
-
-RUN npm install -g bun@1.3.8
 
 WORKDIR /app
 
 # Copiar solo lo necesario para produccion
 COPY --from=builder /app/package.json           ./
-COPY --from=builder /app/bun.lock               ./
 COPY --from=builder /app/node_modules           ./node_modules
 COPY --from=builder /app/apps/api               ./apps/api
 COPY --from=builder /app/packages/types         ./packages/types
