@@ -37,8 +37,8 @@ RUN cd packages/types && bun run build
 # 2. core-plugin
 RUN cd packages/core-plugin && bun run build
 
-# 3. API
-RUN cd apps/api && bun run build
+# 3. API - usar node para medusa build (bun tiene incompatibilidades con mikro-orm decorators)
+RUN cd apps/api && node /app/node_modules/.bin/medusa build
 
 # ── Imagen final ──────────────────────────────────────────────────────────────
 FROM oven/bun:1.3.8-alpine AS runner
