@@ -27,7 +27,7 @@ RUN mkdir -p integration-tests && \
     echo '{"name":"@mercurjs/integration-tests","version":"0.0.1","private":true}' \
     > integration-tests/package.json
 
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 FROM deps AS builder
