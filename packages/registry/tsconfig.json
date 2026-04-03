@@ -1,0 +1,35 @@
+{
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": [
+			"node"
+		],
+		"target": "ESNext",
+		"module": "Preserve",
+		"moduleDetection": "force",
+		"moduleResolution": "bundler",
+		"noEmit": false,
+		"emitDeclarationOnly": false,
+		"strict": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"skipLibCheck": true,
+		"declaration": true,
+		"outDir": "./dist",
+		"preserveWatchOutput": true,
+		"baseUrl": ".",
+		"paths": {},
+		"verbatimModuleSyntax": false
+	},
+	"include": [
+		"src/**/*"
+	]
+}

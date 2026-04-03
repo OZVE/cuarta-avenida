@@ -1,0 +1,9 @@
+{
+  "$schema": "https://registry.mercurjs.com/registry.json",
+  "aliases": {
+    "api": "@",
+    "vendor": "@/vendor",
+    "admin": "@/admin"
+  },
+  "registries": {}
+}

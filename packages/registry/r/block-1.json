@@ -1,0 +1,40 @@
+{
+  "$schema": "https://registry.mercurjs.com/registry-item.json",
+  "name": "block-1",
+  "description": "A block with a test module, product-test link, and API route.",
+  "dependencies": [],
+  "registryDependencies": [
+    "block-2"
+  ],
+  "docs": "## Test Block Configuration\n\nAdd the test module to your `medusa-config.ts`:\n\n```ts\nmodules: [\n  {\n    resolve: './modules/test',\n    options: {\n      apiKey: process.env.TEST_API_KEY,\n    },\n  },\n]\n```\n\n## Environment Variables\n\nAdd the following to your `.env` file:\n\n```\nTEST_API_KEY=your-api-key\n```",
+  "categories": [
+    "test"
+  ],
+  "files": [
+    {
+      "path": "block-1/modules/test/index.ts",
+      "content": "import { Module } from \"@medusajs/framework/utils\"\nimport TestModuleService from \"./service\"\n\nexport const TEST_MODULE = \"test\"\n\nexport default Module(TEST_MODULE, {\n  service: TestModuleService,\n})\n\n\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "block-1/modules/test/service.ts",
+      "content": "import { MedusaService } from \"@medusajs/framework/utils\"\nimport Test from \"./models/test\"\n\nclass TestModuleService extends MedusaService({\n  Test,\n}) {}\n\nexport default TestModuleService\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "block-1/modules/test/models/test.ts",
+      "content": "import { model } from \"@medusajs/framework/utils\"\n\nconst Test = model.define(\"test\", {\n  id: model.id().primaryKey(),\n  name: model.text(),\n})\n\nexport default Test\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "block-1/links/product-test.ts",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\"\nimport ProductModule from \"@medusajs/medusa/product\"\nimport TestModule from \"../modules/test\"\n\nexport default defineLink(\n  ProductModule.linkable.product,\n  TestModule.linkable.test\n)\n",
+      "type": "registry:api"
+    },
+    {
+      "path": "block-1/api/hello/test/route.ts",
+      "content": "import type { MedusaRequest, MedusaResponse } from \"@medusajs/framework/http\";\n\nexport const POST = async (req: MedusaRequest, res: MedusaResponse) => {\n    res.json({\n        test: true,\n        test2: false,\n    })\n}",
+      "type": "registry:api"
+    }
+  ]
+}

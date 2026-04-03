@@ -1,0 +1,119 @@
+import { ReactNode, Children } from "react";
+import { useLoaderData, useParams } from "react-router-dom";
+
+import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
+import { TwoColumnPage } from "../../../components/layout/pages";
+import { useOrder, useOrderPreview } from "../../../hooks/api/orders";
+import { ActiveOrderClaimSection } from "./components/active-order-claim-section";
+import { ActiveOrderExchangeSection } from "./components/active-order-exchange-section";
+import { ActiveOrderReturnSection } from "./components/active-order-return-section";
+import { OrderActiveEditSection } from "./components/order-active-edit-section";
+import { OrderActivitySection } from "./components/order-activity-section";
+import { OrderCustomerSection } from "./components/order-customer-section";
+import { OrderFulfillmentSection } from "./components/order-fulfillment-section";
+import { OrderGeneralSection } from "./components/order-general-section";
+import { OrderPaymentSection } from "./components/order-payment-section";
+import { OrderSummarySection } from "./components/order-summary-section";
+import { DEFAULT_FIELDS } from "./constants";
+import { orderLoader } from "./loader";
+import { OrderRemainingOrdersGroupSection } from "./components/order-remaining-orders-group-section";
+
+const Root = ({ children }: { children?: ReactNode }) => {
+  const initialData = useLoaderData() as Awaited<
+    ReturnType<typeof orderLoader>
+  >;
+
+  const { id } = useParams();
+
+  const { order: rawOrder, isLoading, isError, error } = useOrder(
+    id!,
+    {
+      fields: DEFAULT_FIELDS,
+    },
+    {
+      initialData,
+    },
+  );
+
+  // TODO: Retrieve endpoints don't have an order ability, so a JS sort until this is available
+  const order = rawOrder
+    ? {
+        ...rawOrder,
+        items: [...rawOrder.items].sort((itemA, itemB) => {
+          if (itemA.created_at > itemB.created_at) {
+            return 1;
+          }
+          if (itemA.created_at < itemB.created_at) {
+            return -1;
+          }
+          return 0;
+        }),
+      }
+    : rawOrder;
+
+  const { order: orderPreview, isLoading: isPreviewLoading } = useOrderPreview(
+    id!,
+  );
+
+  if (isLoading || !order || isPreviewLoading) {
+    return (
+      <TwoColumnPageSkeleton mainSections={4} sidebarSections={2} showJSON />
+    );
+  }
+
+  if (isError) {
+    throw error;
+  }
+
+  return Children.count(children) > 0 ? (
+    <TwoColumnPage
+      data={order}
+      showJSON
+      showMetadata
+      hasOutlet
+      data-testid="order-detail-page"
+    >
+      {children}
+    </TwoColumnPage>
+  ) : (
+    <TwoColumnPage
+      data={order}
+      showJSON
+      showMetadata
+      hasOutlet
+      data-testid="order-detail-page"
+    >
+      <TwoColumnPage.Main data-testid="order-detail-main">
+        <OrderActiveEditSection order={order} />
+        <ActiveOrderClaimSection orderPreview={orderPreview!} />
+        <ActiveOrderExchangeSection orderPreview={orderPreview!} />
+        <ActiveOrderReturnSection orderPreview={orderPreview!} />
+        <OrderGeneralSection order={order} />
+        <OrderSummarySection order={order} />
+        <OrderPaymentSection order={order} />
+        <OrderFulfillmentSection order={order} />
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
+        <OrderCustomerSection order={order} />
+        <OrderActivitySection order={order} />
+        <OrderRemainingOrdersGroupSection />
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
+  );
+};
+
+export const OrderDetailPage = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainActiveEditSection: OrderActiveEditSection,
+  MainActiveClaimSection: ActiveOrderClaimSection,
+  MainActiveExchangeSection: ActiveOrderExchangeSection,
+  MainActiveReturnSection: ActiveOrderReturnSection,
+  MainGeneralSection: OrderGeneralSection,
+  MainSummarySection: OrderSummarySection,
+  MainPaymentSection: OrderPaymentSection,
+  MainFulfillmentSection: OrderFulfillmentSection,
+  SidebarCustomerSection: OrderCustomerSection,
+  SidebarActivitySection: OrderActivitySection,
+  SidebarOrderGroupSection: OrderRemainingOrdersGroupSection,
+});

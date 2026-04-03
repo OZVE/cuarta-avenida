@@ -1,0 +1,42 @@
+{
+  "name": "@mercurjs/client",
+  "version": "2.1.0-canary.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mercurjs/mercur",
+    "directory": "packages/client"
+  },
+  "type": "commonjs",
+  "author": "MercurJS (https://github.com/mercurjs)",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.64.2",
+    "qs": "^6.12.1"
+  },
+  "devDependencies": {
+    "@medusajs/framework": "^2.13.4",
+    "@types/qs": "^6.9.18",
+    "tsup": "^8.5.0",
+    "typescript": "5.9.3"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.8.0"
+  }
+}
