@@ -21,7 +21,11 @@ COPY packages/dashboard-sdk/package.json        ./packages/dashboard-sdk/
 COPY packages/dashboard-shared/package.json     ./packages/dashboard-shared/
 COPY packages/providers/payout-stripe-connect/package.json ./packages/providers/payout-stripe-connect/
 COPY packages/registry/package.json             ./packages/registry/
-COPY integration-tests/package.json             ./integration-tests/
+
+# integration-tests no va a produccion, creamos un stub para satisfacer el workspace
+RUN mkdir -p integration-tests && \
+    echo '{"name":"@mercurjs/integration-tests","version":"0.0.1","private":true}' \
+    > integration-tests/package.json
 
 RUN bun install --frozen-lockfile
 
