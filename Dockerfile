@@ -20,6 +20,8 @@ COPY packages/vendor/package.json               ./packages/vendor/
 COPY packages/dashboard-sdk/package.json        ./packages/dashboard-sdk/
 COPY packages/dashboard-shared/package.json     ./packages/dashboard-shared/
 COPY packages/providers/payout-stripe-connect/package.json ./packages/providers/payout-stripe-connect/
+COPY packages/registry/package.json             ./packages/registry/
+COPY integration-tests/package.json             ./integration-tests/
 
 RUN bun install --frozen-lockfile
 
